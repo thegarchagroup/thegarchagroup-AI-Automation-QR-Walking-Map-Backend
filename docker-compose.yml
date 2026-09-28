@@ -1,17 +1,11 @@
 services:
-  walk-map:
-    build: .
-    container_name: walk-map
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:8102:80"
-
   walk-map-api:
-    build: ./backend
+    build: .
     container_name: walk-map-api
     restart: unless-stopped
     env_file:
-      - ./backend/.env
+      - path: .env
+        required: true
     volumes:
       - walk-map-api-data:/app/data
     ports:
