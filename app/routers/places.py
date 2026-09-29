@@ -1,5 +1,6 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -16,7 +17,10 @@ def list_places(category: Optional[str] = None, db: Session = Depends(get_db)):
     query = db.query(Place)
     if category:
         query = query.filter(Place.category == category)
-    return query.order_by(Place.category, Place.id).all()
+    # sort_order first (the intended display order), Place.id as a stable
+    # tiebreaker only for rows that happen to share a sort_order (or have
+    # none set at all, e.g. rows created before this field existed).
+    return query.order_by(Place.category, Place.sort_order, Place.id).all()
 
 
 @router.get("/{place_id}", response_model=PlaceOut)
@@ -39,6 +43,18 @@ def create_place(
 
     new_id = f"{payload.category}-custom-{int(time.time() * 1000)}"
 
+    # New places go to the end of their section by default, unless the
+    # caller explicitly specified a sort_order.
+    if payload.sort_order is None:
+        max_order = (
+            db.query(func.max(Place.sort_order))
+            .filter(Place.category == payload.category)
+            .scalar()
+        )
+        next_order = (max_order or 0) + 1
+    else:
+        next_order = payload.sort_order
+
     place = Place(
         id=new_id,
         category=payload.category,
@@ -55,6 +71,7 @@ def create_place(
         lat=payload.lat,
         lng=payload.lng,
         map_url=payload.map_url,
+        sort_order=next_order,
     )
     db.add(place)
     db.commit()

@@ -29,6 +29,11 @@ class Place(Base):
     lat = Column(Float, nullable=True)
     lng = Column(Float, nullable=True)
     map_url = Column(String, nullable=True)
+    # Controls display order within a category — independent of the `n`
+    # badge text (which is free-form and editable) and independent of the
+    # database id (which sorts alphabetically, not numerically: "10"
+    # comes right after "1" that way, which is the bug this field fixes).
+    sort_order = Column(Integer, nullable=True, index=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

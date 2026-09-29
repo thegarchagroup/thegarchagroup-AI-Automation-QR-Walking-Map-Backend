@@ -20,6 +20,7 @@ class PlaceBase(BaseModel):
     lat: Optional[float] = None
     lng: Optional[float] = None
     map_url: Optional[str] = None
+    sort_order: Optional[int] = None
 
 
 class PlaceCreate(PlaceBase):
@@ -43,6 +44,7 @@ class PlaceUpdate(BaseModel):
     lng: Optional[float] = None
     map_url: Optional[str] = None
     category: Optional[str] = None
+    sort_order: Optional[int] = None
 
 
 class PlaceOut(PlaceBase):
