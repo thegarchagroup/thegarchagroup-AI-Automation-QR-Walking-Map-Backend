@@ -78,3 +78,26 @@ class UserOut(BaseModel):
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
+
+
+# ---------------------------------------------------------------------------
+# Menu items (the 6 home-screen sections)
+# ---------------------------------------------------------------------------
+
+class MenuItemUpdate(BaseModel):
+    """All optional — a partial update. `sort_order` is set directly by
+    the reorder (swap-with-neighbor) actions; `label`/`tagline` by the
+    content edit form."""
+
+    label: Optional[str] = None
+    tagline: Optional[str] = None
+    sort_order: Optional[int] = None
+
+
+class MenuItemOut(BaseModel):
+    key: str
+    label: str
+    tagline: Optional[str] = None
+    sort_order: int
+
+    model_config = ConfigDict(from_attributes=True)

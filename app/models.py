@@ -48,3 +48,22 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class MenuItem(Base):
+    """
+    One of the home screen's 6 numbered sections (Neighborhood Map, Worth
+    the Detour, ... Running Map). `key` is the stable identifier the
+    frontend uses to decide what a section actually does when tapped
+    (e.g. 'map' opens the Neighborhood Map, 'see' opens the Worth the
+    Detour list) — it is NOT editable. `label`, `tagline`, and
+    `sort_order` are all editable from the content editor; the displayed
+    "01/02/03..." number is computed from position, not stored here.
+    """
+
+    __tablename__ = "menu_items"
+
+    key = Column(String, primary_key=True)  # map | see | do | eat | drive | running
+    label = Column(String, nullable=False)
+    tagline = Column(String, nullable=True)
+    sort_order = Column(Integer, nullable=False, index=True)

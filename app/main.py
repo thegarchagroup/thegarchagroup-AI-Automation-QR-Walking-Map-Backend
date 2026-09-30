@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import get_settings
 from .database import Base, engine
-from .routers import auth, places, config as config_router, uploads
+from .routers import auth, places, config as config_router, uploads, menu
 
 settings = get_settings()
 
@@ -26,6 +26,7 @@ app.include_router(auth.router)
 app.include_router(places.router)
 app.include_router(config_router.router)
 app.include_router(uploads.router)
+app.include_router(menu.router)
 
 # Serves whatever's saved by the /uploads POST route back out as plain
 # static files — e.g. a photo saved as uploads/abc123.jpg is reachable at
