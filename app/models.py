@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, Integer, DateTime
+from sqlalchemy import Column, String, Float, Integer, DateTime, Text, JSON
 from sqlalchemy.sql import func
 
 from .database import Base
@@ -67,3 +67,45 @@ class MenuItem(Base):
     label = Column(String, nullable=False)
     tagline = Column(String, nullable=True)
     sort_order = Column(Integer, nullable=False, index=True)
+
+
+class SiteSetting(Base):
+    """
+    Free-text copy that appears on the home page and is editable from the
+    content editor (currently: home_title, home_intro). One row per key.
+    A missing row simply means "use the built-in default" — see
+    routers/settings.py — so adding a new editable text later needs no
+    migration or seed step.
+    """
+
+    __tablename__ = "site_settings"
+
+    key = Column(String, primary_key=True)
+    value = Column(Text, nullable=False, default="")
+
+
+class RouteConfig(Base):
+    """
+    The Running Map. A single row (id = 1) holding everything the editor
+    can change: the page subtitle, the distance label, the safety note and
+    the ordered list of stops.
+
+    `stops` is a JSON list of {name, lat, lng, is_start}; the route is a
+    closed loop, so the last stop connects back to the first. `geometry`
+    is the real walking line ([[lat, lng], ...]) computed from those stops
+    by a routing service whenever the stops change — guests never trigger
+    a routing call, they just draw the stored line.
+    """
+
+    __tablename__ = "route_config"
+
+    id = Column(Integer, primary_key=True)  # always 1
+    subtitle = Column(Text, nullable=False, default="")
+    distance_label = Column(String, nullable=False, default="")
+    safety_note = Column(Text, nullable=False, default="")
+    stops = Column(JSON, nullable=False)
+    geometry = Column(JSON, nullable=True)
+    computed_km = Column(Float, nullable=True)
+    routing_status = Column(String, nullable=True)  # "ok" | "fallback"
+    routing_provider = Column(String, nullable=True)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
